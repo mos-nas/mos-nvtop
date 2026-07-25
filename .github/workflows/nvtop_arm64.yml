@@ -36,6 +36,8 @@ jobs:
         # Add LICENSE from repo:
         cp "$BUILDDIR/nvtop/COPYING" "$PACKAGEDIR/usr/share/doc/mos-nvtop/LICENSE"
 
+        rm -rf $PACKAGEDIR/share/applications $PACKAGEDIR/share/icons $PACKAGEDIR/share/metainfo
+
         cat > $PACKAGEDIR/DEBIAN/control << EOF
         Package: mos-nvtop
         Version: ${NVTOP_V}-mos
@@ -55,8 +57,8 @@ jobs:
     - name: Create and Upload Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v${NVTOP_V}
-        name: "mos-nvtop v${NVTOP_V}"
+        tag_name: v${{ env.NVTOP_V }}
+        name: "mos-nvtop v${{ env.NVTOP_V }}"
         body: nvtop for MOS
         files: |
           ${{ github.workspace }}/mos-nvtop*
