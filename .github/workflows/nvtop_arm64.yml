@@ -36,7 +36,7 @@ jobs:
         # Add LICENSE from repo:
         cp "$BUILDDIR/nvtop/COPYING" "$PACKAGEDIR/usr/share/doc/mos-nvtop/LICENSE"
 
-        rm -rf $PACKAGEDIR/share/applications $PACKAGEDIR/share/icons $PACKAGEDIR/share/metainfo
+        rm -rf $PACKAGEDIR/usr/share/applications $PACKAGEDIR/usr/share/icons $PACKAGEDIR/usr/share/metainfo
 
         cat > $PACKAGEDIR/DEBIAN/control << EOF
         Package: mos-nvtop
