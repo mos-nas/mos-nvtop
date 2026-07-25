@@ -1,4 +1,4 @@
-name: Compile image-sha
+name: Compile nvtop
 
 on:
   # Allow to trigger action manually
