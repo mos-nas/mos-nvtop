@@ -1,13 +1,8 @@
-name: Compile nvtop
+name: Compile nvtop arm64
 
 on:
   # Allow to trigger action manually
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version'
-        required: true
-        type: string
 
 jobs:
   build:
