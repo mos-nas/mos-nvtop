@@ -1,0 +1,72 @@
+name: Compile image-sha
+
+on:
+  # Allow to trigger action manually
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get -y install jq curl git build-essential cmake libncurses-dev libudev-dev libdrm-dev
+
+    - name: Build and create .deb package for amd64
+      run: |
+        NVTOP_V=$(curl -q -u ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} https://api.github.com/repos/Syllo/nvtop/releases/latest | jq -r '.tag_name')
+        BUILDDIR=${{ github.workspace }}
+        PACKAGEDIR=$BUILDDIR/nvtop_package
+        mkdir -p $PACKAGEDIR/DEBIAN $PACKAGEDIR/usr/bin $PACKAGEDIR/usr/share/doc/mos-nvtop
+
+        cd $BUILDDIR
+        git clone --branch $NVTOP_V --single-branch --depth 1 https://github.com/Syllo/nvtop
+        mkdir -p $BUILDDIR/nvtop/build
+        cd $BUILDDIR/nvtop/build
+        cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+        make -j$(nproc --all)
+        DESTDIR=$PACKAGEDIR make install
+
+        # Add LICENSE from repo:
+        cp "$BUILDDIR/nvtop/COPYING" "$PACKAGEDIR/usr/share/doc/mos-nvtop/LICENSE"
+
+        cat > $PACKAGEDIR/DEBIAN/control << EOF
+        Package: mos-nvtop
+        Version: ${NVTOP_V}-mos
+        Architecture: amd64
+        Maintainer: admin@mos-nas.net
+        Description: nvtop for MOS
+        EOF
+
+        cd $BUILDDIR
+        chmod -R 755 $PACKAGEDIR
+        dpkg-deb --build nvtop_package mos-nvtop_${NVTOP_V}_arm64.deb
+        md5sum $BUILDDIR/mos-nvtop_${NVTOP_V}_arm64.deb | awk '{print $1}' > $BUILDDIR/mos-nvtop_${NVTOP_V}_arm64.deb.md5
+
+    - name: Create and Upload Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ github.event.inputs.version }}
+        name: "mos-nvtop v${{ github.event.inputs.version }}"
+        body: nvtop for MOS
+        files: |
+          ${{ github.workspace }}/mos-nvtop*
+        overwrite_files: true
+        fail_on_unmatched_files: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Cleanup
+      if: always()
+      run: rm -rf ${{ github.workspace }}/* ${{ github.workspace }}/.*
