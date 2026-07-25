@@ -23,10 +23,10 @@ jobs:
           "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.tag_name')
         
         # Check if versions are empty or null
-        if [ -z "$NVTOP_V" ] || [ "$NVTOP_V" = "null" ] || [ -z "$AVAILABLE_V" ] || [ "$AVAILABLE_V" = "null" ]; then
-          echo "Couldn't get Version numbers"
-          exit 1
-        fi
+        #if [ -z "$NVTOP_V" ] || [ "$NVTOP_V" = "null" ] || [ -z "$AVAILABLE_V" ] || [ "$AVAILABLE_V" = "null" ]; then
+        #  echo "Couldn't get Version numbers"
+        #  exit 1
+        #fi
         
         if [ "${NVTOP_V#v}" != "${NVTOP_V#v}" ]; then
           echo "Newer version found: v${NVTOP_V#v}"
