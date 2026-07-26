@@ -18,7 +18,7 @@ jobs:
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get -y install jq curl git build-essential cmake libncurses-dev libudev-dev libdrm-dev
 
-    - name: Build and create .deb package for amd64
+    - name: Build and create .deb package for arm64
       run: |
         NVTOP_V=$(curl -q -u ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} https://api.github.com/repos/Syllo/nvtop/releases/latest | jq -r '.tag_name')
         BUILDDIR=${{ github.workspace }}
@@ -41,7 +41,7 @@ jobs:
         cat > $PACKAGEDIR/DEBIAN/control << EOF
         Package: mos-nvtop
         Version: ${NVTOP_V}-mos
-        Architecture: amd64
+        Architecture: arm64
         Maintainer: admin@mos-official.net
         Description: nvtop for MOS
         EOF
